@@ -7,6 +7,12 @@ class WelcomeComponent extends Component {
         super(props);
 
         this.retrieveWelcomeMessage = this.retrieveWelcomeMessage.bind(this)
+        this.state = {
+            welcomeMessage: ''
+        }
+
+        this.handleSuccessfulResponse = this.handleSuccessfulResponse.bind(this)
+        this.handleErrorResponse = this.handleErrorResponse.bind(this)
     }
 
     render() {
@@ -17,20 +23,44 @@ class WelcomeComponent extends Component {
                     Welcome {this.props.match.params.name}. You can manage your todos <Link to='/todos'>here</Link>.
             </div>
 
-                <div className="welcomeComponent">
+                <div className="container">
                     Click here to get a customized message.
-                <button className="btn btn-success" onClick={this.retrieveWelcomeMessage}>Get Welcome Message</button>
+            <button className="btn btn-success" onClick={this.retrieveWelcomeMessage}>Get Welcome Message</button>
+                </div>
+                <div className="container">
+                    {this.state.welcomeMessage}
                 </div>
             </>
         )
     }
 
-
     retrieveWelcomeMessage() {
-        console.log('retrieve');
-        HelloWorldService.executeHelloWorldService()
-        .then(response => console.log(response))
-        //.catch()
+        //HelloWorldService.executeHelloWorldService()
+        //.then(response => this.handleSuccessfulResponse(response))
+
+        //HelloWorldService.executeHelloWorldBeanService()
+            //.then(
+                //response => this.handleSuccessfulResponse(response)
+            //)
+        
+        HelloWorldService.executeHelloWorldPathVariableService(this.props.match.params.name)
+            .then(
+                response => this.handleSuccessfulResponse(response)
+            )
+            .catch(error => this.handleErrorResponse(error))
+    }
+
+    handleSuccessfulResponse(response){
+        this.setState({
+            welcomeMessage: response.data.message
+        })
+    }
+
+    handleErrorResponse(error){
+        console.log(error.response);
+        this.setState({
+            welcomeMessage: error.response.data.message
+        })
     }
 }
 
