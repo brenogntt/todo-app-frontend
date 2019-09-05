@@ -18,29 +18,47 @@ class TodoComponent extends Component { // id is not in props of TodoComponent, 
         this.validate = this.validate.bind(this)
     }
 
-    componentDidMount(){
+    componentDidMount() {
+
+        if(this.state.id === -1){ //if it's a creation of todo, does nto need to retrive a specific todo cuz it doesn't exist
+            return
+        }
+
         let username = AuthenticationService.getLoggedInUsername()
         TodoService.retrieveTodo(username, this.state.id)
-        .then(response => this.setState({
-            description: response.data.description,
-            deadLineDate: moment(response.data.deadLineDate).format('YYYY-MM-DD')
-        }))
+            .then(response => this.setState({
+                description: response.data.description,
+                deadLineDate: moment(response.data.deadLineDate).format('YYYY-MM-DD')
+            }))
     }
 
-    onSubmit(values){
-        console.log(values);
+
+    onSubmit(values) {
+        let username = AuthenticationService.getLoggedInUsername()
+        if (this.state.id === -1) {
+            TodoService.createTodo(username, {
+                id: null, //that's how I'm processing it on backend
+                description: values.description,
+                deadLineDate: values.deadLineDate
+            }).then(() => this.props.history.push('/todos'))
+        }
+        TodoService.updateTodo(username, this.state.id, {
+            id: this.state.id,
+            description: values.description,
+            deadLineDate: values.deadLineDate
+        }).then(() => this.props.history.push('/todos'))
     } // onSubmit is only called when validate returns erros = {} - no erros
 
-    validate(values){
+    validate(values) {
         let errors = {}
 
-        if(!values.description){
+        if (!values.description) {
             errors.description = 'Enter a description'
-        } else if (values.description.length < 5){
+        } else if (values.description.length < 5) {
             errors.description = 'Enter at least 5 characters in description'
         }
 
-        if(!moment(values.deadLineDate).isValid()){
+        if (!moment(values.deadLineDate).isValid()) {
             errors.deadLineDate = 'Enter a valid deadline date'
         }
 
@@ -57,13 +75,13 @@ class TodoComponent extends Component { // id is not in props of TodoComponent, 
             <div>
                 <h1>Todo</h1>
                 <div className="container">
-                    <Formik 
-                    initialValues={{ description: description, deadLineDate: deadLineDate }}
-                    onSubmit={this.onSubmit}
-                    validateOnChange={false}
-                    validateOnBlur={false}
-                    validate={this.validate}
-                    enableReinitialize={true}
+                    <Formik
+                        initialValues={{ description: description, deadLineDate: deadLineDate }}
+                        onSubmit={this.onSubmit}
+                        validateOnChange={false}
+                        validateOnBlur={false}
+                        validate={this.validate}
+                        enableReinitialize={true}
                     >
                         {
                             (props) => (
