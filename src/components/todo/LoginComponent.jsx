@@ -22,35 +22,47 @@ class LoginComponent extends Component {
     render() {
         return (
             <>
-            <h1>Login</h1>
-            <div className="container">
-                {/*<CheckLoginSucceed hasLoginSucceed={this.state.hasLoginSucceed} />*/}
-                {/*<CheckLoginFailed hasLoginFailed={this.state.hasLoginFailed} />*/}
-                {this.state.hasLoginSucceed && <div>Login Successful</div>} {/* lil JavaScript trick - if left side is true, right side will be shown */}
-                {this.state.hasLoginFailed && <div className="alert alert-warning">Login Failed</div>}
-                User name: <input type="text" name="username" value={this.state.username} onChange={this.handlerChange} /> {/*Binding the form with the state of the component*/}
-                Password: <input type="password" name="password" value={this.state.password} onChange={this.handlerChange} />
-                <button className="btn btn-success" onClick={this.loginClicked}>Login</button>
-            </div>
+                <h1>Login</h1>
+                <div className="container">
+                    {/*<CheckLoginSucceed hasLoginSucceed={this.state.hasLoginSucceed} />*/}
+                    {/*<CheckLoginFailed hasLoginFailed={this.state.hasLoginFailed} />*/}
+                    {this.state.hasLoginSucceed && <div>Login Successful</div>} {/* lil JavaScript trick - if left side is true, right side will be shown */}
+                    {this.state.hasLoginFailed && <div className="alert alert-warning">Login Failed</div>}
+                    User name: <input type="text" name="username" value={this.state.username} onChange={this.handlerChange} /> {/*Binding the form with the state of the component*/}
+                    Password: <input type="password" name="password" value={this.state.password} onChange={this.handlerChange} />
+                    <button className="btn btn-success" onClick={this.loginClicked}>Login</button>
+                </div>
             </>
         )
     }
 
     loginClicked() {
-        if (this.state.username === 'breno.gianotto' && this.state.password === '12345') {
-            this.props.history.push(`/welcome/${this.state.username}`)
-            AuthenticationService.registerSuccessfullLogin(this.state.username,this.state.password);
-            //this.setState({
+        //if (this.state.username === 'breno.gianotto' && this.state.password === '12345') {
+            //AuthenticationService.registerSuccessfullLogin(this.state.username, this.state.password);
+            //this.props.history.push(`/welcome/${this.state.username}`)
+                //this.setState({
             //hasLoginSucceed: true,
             //hasLoginFailed:false
             //})
-        } else {
+        //} else {
+            //this.setState({
+                //hasLoginSucceed: false,
+                //hasLoginFailed: true
+            //})
+        //}
+
+        AuthenticationService
+        .executeBasicAuthenticationService(this.state.username, this.state.password)
+        .then(() => {
+                AuthenticationService.registerSuccessfullLogin(this.state.username, this.state.password);
+                this.props.history.push(`/welcome/${this.state.username}`)
+            })
+        .catch(()=>{
             this.setState({
                 hasLoginSucceed: false,
                 hasLoginFailed: true
             })
-        }
-
+        })
     }
 
     handlerChange(event) {
